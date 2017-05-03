@@ -14,7 +14,7 @@ function ClickHandler () {
 			});
 	};
 
-	this.addClick = function (req, res) {
+	this.addClick = function (req, rrs) {
 		Users
 			.findOneAndUpdate({ 'github.id': req.user.github.id }, { $inc: { 'nbrClicks.clicks': 1 } })
 			.exec(function (err, result) {

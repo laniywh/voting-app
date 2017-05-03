@@ -1,0 +1,165 @@
+'use strict';
+
+(function () {
+
+    var pollsSection = document.querySelector('.polls');
+    var pollsContainer= document.querySelector('.polls-container');
+    var pollDetailsContainer = document.querySelector('.poll-details');
+    var apiUrl = appUrl + '/api/polls';
+    var polls;
+
+    function updatePolls(data) {
+        polls= JSON.parse(data);
+        console.log(polls);
+        var html = "";
+
+        if (polls.length > 0) {
+            polls.forEach(function (poll) {
+                var pollListElem = `
+                    <li class="list-group-item poll"
+                        data-id=${poll._id}>
+
+                            ${poll.name}
+
+                    </li>`;
+                html += pollListElem;
+            });
+
+            pollsContainer.innerHTML = html;
+
+            onPollClick();
+        }
+    }
+
+    function onPollClick() {
+        document.querySelector('.poll').addEventListener('click', function () {
+            // ajaxFunctions.ajaxRequest('GET', appUrl + '/poll/' + poll.dataset.id);
+
+            pollsSection.style.display = "none";
+
+            showPollDetails(this.dataset.id);
+        });
+    }
+
+    function showPollDetails(pollId) {
+        var pollNameContainer = document.querySelector('#poll-name');
+        var pollOptionsContainer = document.querySelector('.poll-options');
+
+        pollDetailsContainer.style.display = "block";
+
+        // find poll by id
+        var poll = polls.find(function (poll) {
+            return poll._id === pollId;
+        });
+
+        pollNameContainer.innerHTML = poll.name;
+
+        // list options
+        var optionsHtml = '';
+        for (var i = 0; i < poll.options.length; i++) {
+            optionsHtml += `
+                <input type="radio"
+                       name="option"
+                       value="${poll.options[i].name}"
+                       ${i==0 ? 'checked' : ''}>
+                       ${poll.options[i].name}<br>
+            `;
+        }
+
+        pollOptionsContainer.innerHTML = optionsHtml;
+
+        drawGraph(poll.options);
+
+
+    }
+
+
+    function drawGraph(dataset) {
+        console.log(dataset);
+
+        //   var dataset = [
+        //   { label: 'Abulia', count: 10 },
+        //   { label: 'Betelgeuse', count: 20 },
+        //   { label: 'Cantaloupe', count: 30 },
+        //   { label: 'Dijkstra', count: 40 }
+        // ];
+
+        var width = 360;
+        var height = 360;
+        var radius = Math.min(width, height) / 2;
+        var donutWidth = 75;                            // NEW
+
+        var color = d3.scaleOrdinal(d3.schemeCategory20b);
+
+        var svg = d3.select('.graph')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height)
+          .append('g')
+          .attr('transform', 'translate(' + (width / 2) +
+            ',' + (height / 2) + ')');
+
+        var arc = d3.arc()
+          .innerRadius(radius - donutWidth)
+          .outerRadius(radius);
+
+        var pie = d3.pie()
+          .value(function(d) { return d.votes; })
+          .sort(null);
+
+        var path = svg.selectAll('path')
+          .data(pie(dataset))
+          .enter()
+          .append('path')
+          .attr('d', arc)
+          .attr('fill', function(d, i) {
+            console.log(d);
+            return color(d.data.name);
+          });
+
+
+        // tooltip
+
+        var tooltip = d3.select('.graph')
+            .append('div')
+            .attr('class', 'tooltip');
+
+        tooltip.append('div')
+            .attr('class', 'label');
+
+        tooltip.append('div')
+            .attr('class', 'count');
+
+        tooltip.append('div')
+            .attr('class', 'percent');
+
+        path.on('mouseover', function(d) {
+            var total = d3.sum(dataset.map(function (d) {
+                return d.votes;
+            }));
+                console.log(`total = ${total}`);
+
+
+            var percent = Math.round(1000 * d.data.votes / total) / 10;
+            tooltip.select('.label').html(d.data.name);
+            tooltip.select('.count').html(d.data.votes);
+            tooltip.select('.percent').html(percent + '%');
+            tooltip.style('opacity', 1);
+
+        });
+
+        path.on('mouseout', function () {
+            tooltip.style('opacity', 0);
+        });
+
+        // label follows mouse
+        path.on('mousemove', function () {
+            tooltip.style('top', (d3.event.layerY + 10) + 'px')
+                .style('left', (d3.event.layerX + 10) + 'px');
+        });
+
+    }
+
+    ajaxFunctions.ready(ajaxFunctions.ajaxRequest('GET', apiUrl, updatePolls))
+
+})();
