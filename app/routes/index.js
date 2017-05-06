@@ -15,6 +15,15 @@ module.exports = function (app, passport) {
 			return next();
 		} else {
 			res.redirect('/login');
+			// res.sendFile(path + '/public/login.html');
+		}
+	}
+
+	function getLoginStatus(req, res, next) {
+		if (req.isAuthenticated()) {
+			return next();
+		} else {
+			res.json({ isLoggedIn: false });
 		}
 	}
 
@@ -37,12 +46,7 @@ module.exports = function (app, passport) {
 	app.route('/logout')
 		.get(function (req, res) {
 			req.logout();
-			res.redirect('/login');
-		});
-
-	app.route('/profile')
-		.get(isLoggedIn, function (req, res) {
-			res.sendFile(path + '/public/profile.html');
+			res.redirect('/');
 		});
 
 	app.route('/api/polls')
@@ -71,7 +75,7 @@ module.exports = function (app, passport) {
 		.get(isLoggedIn, pollController.getUserPolls);
 
 	app.route('/api/:pollId/vote')
-		.post(urlencodedParser, pollController.updatePoll);
+		.post(getLoginStatus, urlencodedParser, pollController.updatePoll);
 
 
 	app.route('/mypolls')

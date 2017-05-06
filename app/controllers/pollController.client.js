@@ -101,18 +101,21 @@
             // create params for post request
             var params = `selectedOption=${selectedOption}`;
 
-            ajaxFunctions.ajaxRequest('POST', apiVote, function (poll) {
-                var poll = JSON.parse(poll);
-                // console.log(poll);
+            ajaxFunctions.ajaxRequest('POST', apiVote, function (data) {
+                var data = JSON.parse(data);
 
-                // update graph
-                graphContainer.innerHTML = '';
-                drawGraph(poll.options);
+                if (data.isLoggedIn) {
+                    var poll = data.updatedPoll;
 
+                    // update graph
+                    graphContainer.innerHTML = '';
+                    drawGraph(poll.options);
+                } else {
+                    alert('Login in to vote!');
+                }
             }, params);
         });
     }
-
 
     function drawGraph(dataset) {
 

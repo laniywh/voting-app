@@ -42,7 +42,10 @@ function PollController() {
                 if (err) return handleError(err);
 
                 // console.log(updatedPoll);
-                res.json(updatedPoll);
+                res.json({
+                    isLoggedIn: true,
+                    updatedPoll: updatedPoll
+                });
             });
 
         });
