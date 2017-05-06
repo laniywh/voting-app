@@ -5,10 +5,15 @@
     var pollsSection = document.querySelector('.polls');
     var pollsContainer= document.querySelector('.polls-container');
     var pollDetailsContainer = document.querySelector('.poll-details');
-    var apiUrl = appUrl + '/api/polls';
+    var pollForm = document.querySelector('#pollForm');
+    var submitBtn = document.querySelector('#submit-btn');
+    var graphContainer = document.querySelector('.graph');
+    var apiUrlPolls = appUrl + '/api/polls';
+    var apiUrlUpdatePoll = appUrl + '/api/pollId/vote';
+    var currPollId;
     var polls;
 
-    function updatePolls(data) {
+    function showPolls(data) {
         polls= JSON.parse(data);
         console.log(polls);
         var html = "";
@@ -37,13 +42,21 @@
 
             pollsSection.style.display = "none";
 
-            showPollDetails(this.dataset.id);
+            currPollId = this.dataset.id;
+            showPollDetails(currPollId);
         });
     }
 
     function showPollDetails(pollId) {
+        console.log(pollId);
+
         var pollNameContainer = document.querySelector('#poll-name');
         var pollOptionsContainer = document.querySelector('.poll-options');
+        var pollForm = document.querySelector('#pollForm');
+
+        // update form action with current poll id
+        var updatedAction = pollForm.action.replace('pollId', pollId);
+        pollForm.action = updatedAction;
 
         pollDetailsContainer.style.display = "block";
 
@@ -70,19 +83,38 @@
 
         drawGraph(poll.options);
 
+        onFormSubmit();
 
+    }
+
+    function onFormSubmit() {
+        submitBtn.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            console.log('form submit');
+
+            var apiVote = appUrl + `/api/${currPollId}/vote`;
+
+            // get option selected
+            var formData = new FormData(pollForm);
+            var selectedOption = formData.get('option');
+
+            // create params for post request
+            var params = `selectedOption=${selectedOption}`;
+
+            ajaxFunctions.ajaxRequest('POST', apiVote, function (poll) {
+                var poll = JSON.parse(poll);
+                // console.log(poll);
+
+                // update graph
+                graphContainer.innerHTML = '';
+                drawGraph(poll.options);
+
+            }, params);
+        });
     }
 
 
     function drawGraph(dataset) {
-        console.log(dataset);
-
-        //   var dataset = [
-        //   { label: 'Abulia', count: 10 },
-        //   { label: 'Betelgeuse', count: 20 },
-        //   { label: 'Cantaloupe', count: 30 },
-        //   { label: 'Dijkstra', count: 40 }
-        // ];
 
         var width = 360;
         var height = 360;
@@ -113,7 +145,6 @@
           .append('path')
           .attr('d', arc)
           .attr('fill', function(d, i) {
-            console.log(d);
             return color(d.data.name);
           });
 
@@ -137,7 +168,6 @@
             var total = d3.sum(dataset.map(function (d) {
                 return d.votes;
             }));
-                console.log(`total = ${total}`);
 
 
             var percent = Math.round(1000 * d.data.votes / total) / 10;
@@ -160,6 +190,6 @@
 
     }
 
-    ajaxFunctions.ready(ajaxFunctions.ajaxRequest('GET', apiUrl, updatePolls))
+    ajaxFunctions.ready(ajaxFunctions.ajaxRequest('GET', apiUrlPolls, showPolls));
 
 })();

@@ -1,5 +1,7 @@
 'use strict';
 
+var bodyParser = require('body-parser');
+
 var path = process.cwd();
 var ClickHandler = require(path + '/app/controllers/clickHandler.server.js');
 
@@ -19,6 +21,8 @@ module.exports = function (app, passport) {
 	var clickHandler = new ClickHandler();
 
 	var pollController = new PollController();
+
+	var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 	app.route('/')
 		.get(function (req, res) {
@@ -63,9 +67,11 @@ module.exports = function (app, passport) {
 		.post(isLoggedIn, clickHandler.addClick)
 		.delete(isLoggedIn, clickHandler.resetClicks);
 
-
 	app.route('/api/:id/polls')
 		.get(isLoggedIn, pollController.getUserPolls);
+
+	app.route('/api/:pollId/vote')
+		.post(urlencodedParser, pollController.updatePoll);
 
 
 	app.route('/mypolls')
