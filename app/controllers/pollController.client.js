@@ -2,10 +2,13 @@
 
 (function () {
 
-    var pollsSection = document.querySelector('.polls');
+    var homePageContent = document.querySelector('.home-page-content');
+    var newPollFormContainer = document.querySelector('.new-poll-form-container');
     var pollsContainer= document.querySelector('.polls-container');
     var pollDetailsContainer = document.querySelector('.poll-details');
     var pollForm = document.querySelector('#pollForm');
+
+    var loginBtn = document.querySelector('.login-btn');
     var submitBtn = document.querySelector('#submit-btn');
     var graphContainer = document.querySelector('.graph');
     var apiUrlPolls = appUrl + '/api/polls';
@@ -13,7 +16,65 @@
     var currPollId;
     var polls;
 
+    var newPollBtn = document.querySelector('.new-poll-btn');
+    var myPollBtn = document.querySelector('.my-polls-btn');
+
+    if (newPollBtn) {
+        newPollBtn.addEventListener('click', newPoll);
+    }
+
+    function newPoll(data) {
+        console.log('show new poll form');
+
+        homePageContent.style.display = 'none';
+        pollDetailsContainer.style.display = 'none';
+        newPollFormContainer.style.display = 'block';
+
+        newPollFormContainer.innerHTML = `
+            <form method="post" action="/" id="new-poll-form">
+              <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" id="title">
+              </div>
+              <div class="form-group">
+                <label for="options">Options (seperated by line)</label>
+                <textarea class="form-control" id="options" rows="5"></textarea>
+              </div>
+              <input class="btn" type="submit" value="Submit" id="submit-poll-btn">
+            </form>
+        `;
+
+        var submitPollBtn = document.querySelector('#submit-poll-btn');
+
+        submitPollBtn.addEventListener('click', submitPoll);
+    }
+
+    function submitPoll(ev) {
+        ev.preventDefault();
+
+        var newPollForm = document.querySelector('#new-poll-form');
+        var title = document.querySelector('#title').value;
+        var options = document.querySelector('#options').value.split('\n').toString();
+        var params = `title=${title}&options=${options}`;
+
+        ajaxFunctions.ajaxRequest('POST', appUrl + '/api/poll/create', function (poll) {
+            var poll = JSON.parse(poll);
+
+            // hide the form
+            newPollFormContainer.style.display = 'none';
+
+            console.log(poll);
+            console.log(poll._id);
+            polls.push(poll);
+            currPollId = poll._id;
+            showPollDetails(currPollId);
+
+        }, params);
+    }
+
     function showPolls(data) {
+        console.log('add polls to page...');
+
         polls= JSON.parse(data);
         console.log(polls);
         var html = "";
@@ -37,18 +98,20 @@
     }
 
     function onPollClick() {
-        document.querySelector('.poll').addEventListener('click', function () {
-            // ajaxFunctions.ajaxRequest('GET', appUrl + '/poll/' + poll.dataset.id);
+        var pollElems = document.querySelectorAll('.poll');
 
-            pollsSection.style.display = "none";
+        pollElems.forEach(function (pollElem) {
+            pollElem.addEventListener('click', function () {
+                homePageContent.style.display = "none";
 
-            currPollId = this.dataset.id;
-            showPollDetails(currPollId);
-        });
+                currPollId = this.dataset.id;
+                showPollDetails(currPollId);
+        })});
     }
 
     function showPollDetails(pollId) {
-        console.log(pollId);
+        clearPollDetails();
+        console.log('show poll:' + pollId);
 
         var pollNameContainer = document.querySelector('#poll-name');
         var pollOptionsContainer = document.querySelector('.poll-options');
@@ -87,6 +150,10 @@
 
     }
 
+    function clearPollDetails() {
+        graphContainer.innerHTML = '';
+    }
+
     function onFormSubmit() {
         submitBtn.addEventListener('click', function (ev) {
             ev.preventDefault();
@@ -103,6 +170,7 @@
 
             ajaxFunctions.ajaxRequest('POST', apiVote, function (data) {
                 var data = JSON.parse(data);
+                console.log(data);
 
                 if (data.isLoggedIn) {
                     var poll = data.updatedPoll;
@@ -110,10 +178,13 @@
                     // update graph
                     graphContainer.innerHTML = '';
                     drawGraph(poll.options);
+
                 } else {
                     alert('Login in to vote!');
                 }
             }, params);
+
+
         });
     }
 

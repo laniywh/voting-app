@@ -31,8 +31,6 @@ var ajaxFunctions = {
 
       if (params) {
          xmlhttp.send(params);
-         console.log('send params');
-
       } else {
          xmlhttp.send();
       }

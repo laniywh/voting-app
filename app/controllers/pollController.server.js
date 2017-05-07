@@ -28,7 +28,10 @@ function PollController() {
         var selectedOption = req.body.selectedOption;
 
         Polls.findById(pollId, function (err, poll) {
-            if (err) return handleError(err);
+            if (err) { throw err; }
+
+            console.log('found poll');
+
 
             // increment vote for selected option
             for (var i = 0; i < poll.options.length; i++) {
@@ -39,9 +42,9 @@ function PollController() {
             }
 
             poll.save(function (err, updatedPoll) {
-                if (err) return handleError(err);
+                if (err) { console.log(err); }
 
-                // console.log(updatedPoll);
+                console.log(updatedPoll);
                 res.json({
                     isLoggedIn: true,
                     updatedPoll: updatedPoll
@@ -52,6 +55,32 @@ function PollController() {
 
     }
 
+    this.createPoll = function (req, res) {
+        console.log('creating poll..');
+
+        // parse options
+        options = [];
+        console.log(req.body.options);
+        req.body.options.split(',').forEach(function (option) {
+            options.push({
+                name: option,
+                votes: 0
+            });
+        });
+
+
+         var poll = new Polls({
+             name: req.body.title,
+             options: options
+         });
+
+         poll.save(function (err, newPoll) {
+             if (err) { throw err; }
+
+             res.json(newPoll);
+         });
+
+    }
     // this.getPoll = function (req, res) {
     //     Polls.findOne({ _id: req.params.id }, function (err, poll) {
     //         if (err) { throw err; }
