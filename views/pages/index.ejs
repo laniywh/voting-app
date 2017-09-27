@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <% include ../partials/head %>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <% include ../partials/header %>
+        </header>
+
+        <section class="home-page-content">
+
+          <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+              <h1 class="display-3">Voting App</h1>
+              <p class="lead">Select a poll to see the results and vote, or sign-in to make a new poll.</p>
+            </div>
+          </div>
+
+
+          <ul class="list-group polls-container">
+            <% for(var i = 0; i < polls.length; i++) { %>
+              <li class="list-group-item poll">
+                <a href='/poll/<%= polls[i]._id %>'><%= polls[i].name %></a>
+              </li>
+            <% } %>
+          </ul>
+
+        </section>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+</body>
+</html>

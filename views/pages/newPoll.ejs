@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %></head>
+<body>
+    <div class="container">
+        <header>
+            <% include ../partials/header %></header>
+
+        <form method="post" action="/api/poll/create" id="new-poll-form">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" name="title" id="title"></div>
+            <div class="form-group">
+                <label for="options">Options (seperated by comma)</label>
+                <textarea class="form-control" id="options" name="options" rows="5"></textarea>
+            </div>
+            <input class="btn" type="submit" value="Submit" id="submit-poll-btn">
+        </form>
+
+    </div>
+
+</body>
+</html>
