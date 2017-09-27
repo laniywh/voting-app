@@ -19,13 +19,13 @@ module.exports = function (app, passport) {
 		}
 	}
 
-	function getLoginStatus(req, res, next) {
-		if (req.isAuthenticated()) {
-			return next();
-		} else {
-			res.json({ isLoggedIn: false });
-		}
-	}
+	// function getLoginStatus(req, res, next) {
+	// 	if (req.isAuthenticated()) {
+	// 		return next();
+	// 	} else {
+	// 		res.json({ isLoggedIn: false });
+	// 	}
+	// }
 
 	var clickHandler = new ClickHandler();
 
@@ -33,20 +33,28 @@ module.exports = function (app, passport) {
 
 	var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
+	// app.route('/')
+	// 	.get(function (req, res) {
+	// 		res.sendFile(path + '/public/views/index.html');
+	// 	});
 	app.route('/')
-		.get(function (req, res) {
-			res.sendFile(path + '/public/views/index.html');
-		});
+		.get(pollController.showPolls);
 
-	app.route('/user')
-		.get(isLoggedIn, function (req, res) {
-			res.sendFile(path + '/public/views/loggedIn.html');
-		});
+	app.route('/poll/create')
+		.get(isLoggedIn, pollController.newPollForm);
 
-	app.route('/login')
-		.get(function (req, res) {
-			res.sendFile(path + '/public/login.html');
-		});
+	// app.route('/user')
+	// 	.get(isLoggedIn, function (req, res) {
+	// 		res.sendFile(path + '/public/views/loggedIn.html');
+	// 	});
+	app.route('/user/polls')
+		.get(isLoggedIn, pollController.getUserPolls);
+
+
+	// app.route('/login')
+	// 	.get(function (req, res) {
+	// 		res.sendFile(path + '/public/login.html');
+	// 	});
 
 	app.route('/logout')
 		.get(function (req, res) {
@@ -54,35 +62,37 @@ module.exports = function (app, passport) {
 			res.redirect('/');
 		});
 
-	app.route('/api/polls')
-		.get(pollController.getPolls);
+	// app.route('/api/polls')
+	// 	.get(pollController.getPolls);
 
-	app.route('/api/:id')
-		.get(isLoggedIn, function (req, res) {
-			res.json(req.user.github);
-		});
+
+	app.route('/poll/:pollId')
+		.get(pollController.showPoll);
+
+	// app.route('/api/:id')
+	// 	.get(isLoggedIn, function (req, res) {
+	// 		res.json(req.user.github);
+	// 	});
 
 	app.route('/auth/github')
 		.get(passport.authenticate('github'));
 
 	app.route('/auth/github/callback')
 		.get(passport.authenticate('github', {
-			successRedirect: '/user',
+			successRedirect: '/',
 			failureRedirect: '/'
 		}));
 
-	app.route('/api/:id/polls')
-		.get(isLoggedIn, pollController.getUserPolls);
+	// app.route('/api/:id/polls')
+	// 	.get(isLoggedIn, pollController.getUserPolls);
 
 	app.route('/api/:pollId/vote')
-		.post(getLoginStatus, urlencodedParser, pollController.updatePoll);
+		.post(urlencodedParser, pollController.updatePoll);
 
 	app.route('/api/poll/create')
-		.post(urlencodedParser, pollController.createPoll);
+		.post(isLoggedIn, urlencodedParser, pollController.createPoll);
 
-	app.route('/mypolls')
-		.get(function (req, res) {
-			res.sendFile()
-		})
+	app.route('/api/mypolls')
+		.get(isLoggedIn, pollController.getUserPolls);
 
 };

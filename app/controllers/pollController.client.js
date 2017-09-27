@@ -13,14 +13,47 @@
     var graphContainer = document.querySelector('.graph');
     var apiUrlPolls = appUrl + '/api/polls';
     var apiUrlUpdatePoll = appUrl + '/api/pollId/vote';
+    var apiUrlMyPolls = appUrl + '/api/mypolls';
     var currPollId;
     var polls;
+    var myPolls;
 
     var newPollBtn = document.querySelector('.new-poll-btn');
     var myPollBtn = document.querySelector('.my-polls-btn');
 
     if (newPollBtn) {
         newPollBtn.addEventListener('click', newPoll);
+    }
+
+    if (myPollBtn) {
+        myPollBtn.addEventListener('click', showMyPolls);
+    }
+
+    function showMyPolls() {
+        console.log('click mypolls');
+
+        if (myPolls) {
+            // show polls
+            console.log('has mypolls');
+
+
+        } else {
+
+            console.log('fetching mypolls');
+
+
+            // request my polls from server
+            ajaxFunctions.ajaxRequest('GET', apiUrlMyPolls, function (myPolls) {
+
+                myPolls = JSON.parse(myPolls);
+                console.log(myPolls);
+
+                // render polls
+
+
+            });
+        }
+
     }
 
     function newPoll(data) {
@@ -63,20 +96,20 @@
             // hide the form
             newPollFormContainer.style.display = 'none';
 
+            myPolls = myPolls || [];
             console.log(poll);
-            console.log(poll._id);
             polls.push(poll);
+            myPolls.push(poll);
             currPollId = poll._id;
             showPollDetails(currPollId);
 
         }, params);
     }
 
-    function showPolls(data) {
+    function showPolls(pollsJson) {
         console.log('add polls to page...');
 
-        polls= JSON.parse(data);
-        console.log(polls);
+        polls= JSON.parse(pollsJson);
         var html = "";
 
         if (polls.length > 0) {
