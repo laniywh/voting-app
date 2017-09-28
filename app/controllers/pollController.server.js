@@ -1,6 +1,9 @@
 var Users = require('../models/users.js');
 var Polls = require('../models/polls.js');
 
+// put all polls into a variable
+const polls = Polls.find();
+
 
 function PollController() {
 
@@ -28,7 +31,7 @@ function PollController() {
         });
     };
 
-    this.getUserPolls = function (req, res) {
+    this.getUserPollIds = function (req, res) {
         console.log('getting user polls...');
 
         Users
@@ -36,18 +39,26 @@ function PollController() {
             .exec(function (err, user) {
                 if (err) { throw err; }
 
-                console.log(user.polls);
-
-                // res.json(user.polls);
+                console.log(user.pollIds);
 
                 res.render('pages/userPolls', {
-                    polls: user.polls,
+                    pollIds: user.pollIds,
                     isAuthenticated: req.isAuthenticated(),
                     currPage: 'userPolls'
                 });
 
             });
     };
+
+    this.getPollName = function (req, res) {
+        const pollId = req.params.pollId;
+
+        Polls.findById(pollId, function (err, poll) {
+            if(err) { throw err; }
+
+            res.json({ pollName: poll.name });
+        })
+    }
 
     this.updatePoll = function (req, res) {
         var pollId = req.params.pollId;
@@ -68,27 +79,27 @@ function PollController() {
             }
 
             // also update user's poll copy
-            Users
-                .findOne({ "github.id": req.user.github.id })
-                .exec(function (err, user) {
-                    var userPollInd = user.polls.findIndex(function (userPoll, index, array) {
-                        console.log('user poll id:', userPoll._id);
-                        console.log('poll id:', poll._id);
+            // Users
+            //     .findOne({ "github.id": req.user.github.id })
+            //     .exec(function (err, user) {
+            //         var userPollInd = user.polls.findIndex(function (userPoll, index, array) {
+            //             console.log('user poll id:', userPoll._id);
+            //             console.log('poll id:', poll._id);
 
-                        // TODO: fix never equal
-                        return userPoll._id == poll._id;
-                    });
+            //             // TODO: fix never equal
+            //             return userPoll._id == poll._id;
+            //         });
 
-                    console.log('userPollInd: ', userPollInd);
-                    if (userPollInd > -1) {
-                        console.log("updating user's poll copy...");
-                        user.polls[userPollInd] = poll;
+            //         console.log('userPollInd: ', userPollInd);
+            //         if (userPollInd > -1) {
+            //             console.log("updating user's poll copy...");
+            //             user.polls[userPollInd] = poll;
 
-                        console.log('user polls:');
-                        console.log(user.polls);
-                        user.save();
-                    }
-                });
+            //             console.log('user polls:');
+            //             console.log(user.polls);
+            //             user.save();
+            //         }
+            //     });
 
 
 
@@ -139,7 +150,7 @@ function PollController() {
              Users.findOne({ 'github.id': req.user.github.id }, function (err, user) {
                  if (err) { throw err; }
 
-                 user.polls.push(poll);
+                 user.pollIds.push(poll._id);
 
                  user.save(function (err, user) {
                      if (err) { throw err; }

@@ -48,7 +48,7 @@ module.exports = function (app, passport) {
 	// 		res.sendFile(path + '/public/views/loggedIn.html');
 	// 	});
 	app.route('/user/polls')
-		.get(isLoggedIn, pollController.getUserPolls);
+		.get(isLoggedIn, pollController.getUserPollIds);
 
 
 	// app.route('/login')
@@ -92,7 +92,10 @@ module.exports = function (app, passport) {
 	app.route('/api/poll/create')
 		.post(isLoggedIn, urlencodedParser, pollController.createPoll);
 
-	app.route('/api/mypolls')
-		.get(isLoggedIn, pollController.getUserPolls);
+	app.route('/api/pollName/:pollId')
+		.get(isLoggedIn, pollController.getPollName);
+
+	// app.route('/api/mypolls')
+	// 	.get(isLoggedIn, pollController.getUserPolls);
 
 };

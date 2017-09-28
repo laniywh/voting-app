@@ -13,7 +13,7 @@ var User = new Schema({
    nbrClicks: {
       clicks: Number
    },
-   polls: Array
+   pollIds: Array // should only consist of ID's
 });
 
 module.exports = mongoose.model('User', User);
