@@ -1,10 +1,6 @@
 var Users = require('../models/users.js');
 var Polls = require('../models/polls.js');
 
-// put all polls into a variable
-const polls = Polls.find();
-
-
 function PollController() {
 
     this.showPoll = function (req, res) {
@@ -12,7 +8,14 @@ function PollController() {
         Polls.findOne({ '_id': req.params.pollId }, function (err, poll) {
             if (err) { throw err; }
 
+            var isMyPoll = false;
+            // check if current poll belongs to current user
+            if(req.user) {
+                isMyPoll = req.user.pollIds.includes(poll._id.toString());
+            }
+
             res.render('pages/poll', {
+                isMyPoll,
                 poll,
                 isAuthenticated: req.isAuthenticated(),
                 currPage: 'poll'
@@ -25,8 +28,6 @@ function PollController() {
 
         Polls.find({}, function (err, polls) {
             if (err) { throw err; }
-
-            // res.json(polls);
             res.render('pages/index', { polls, isAuthenticated: req.isAuthenticated(), currPage: 'home' } );
         });
     };
@@ -35,7 +36,7 @@ function PollController() {
         console.log('getting user polls...');
 
         Users
-            .findOne({ 'github.id': req.user.github.id })
+            .findOne({ 'twitter.id': req.user.twitter.id })
             .exec(function (err, user) {
                 if (err) { throw err; }
 
@@ -58,6 +59,27 @@ function PollController() {
 
             res.json({ pollName: poll.name });
         })
+    };
+
+    this.deletePoll = function (req, res) {
+        const pollId = req.params.pollId;
+
+        Polls.deleteOne({ '_id': pollId }, function (err) {
+            if(err) { throw err; }
+
+            Users.findOne({ 'twitter.id': req.user.twitter.id }, function (err, user) {
+                if(err) { throw err; }
+
+                user.pollIds.pull(pollId);
+
+                user.save(function (err, user) {
+                    if(err) { throw err; }
+
+                    res.sendStatus(200);
+                });
+
+            });
+        })
     }
 
     this.updatePoll = function (req, res) {
@@ -67,9 +89,6 @@ function PollController() {
         Polls.findById(pollId, function (err, poll) {
             if (err) { throw err; }
 
-            console.log('found poll');
-
-
             // increment vote for selected option
             for (var i = 0; i < poll.options.length; i++) {
                 if (poll.options[i].name === selectedOption) {
@@ -77,31 +96,6 @@ function PollController() {
                     break;
                 }
             }
-
-            // also update user's poll copy
-            // Users
-            //     .findOne({ "github.id": req.user.github.id })
-            //     .exec(function (err, user) {
-            //         var userPollInd = user.polls.findIndex(function (userPoll, index, array) {
-            //             console.log('user poll id:', userPoll._id);
-            //             console.log('poll id:', poll._id);
-
-            //             // TODO: fix never equal
-            //             return userPoll._id == poll._id;
-            //         });
-
-            //         console.log('userPollInd: ', userPollInd);
-            //         if (userPollInd > -1) {
-            //             console.log("updating user's poll copy...");
-            //             user.polls[userPollInd] = poll;
-
-            //             console.log('user polls:');
-            //             console.log(user.polls);
-            //             user.save();
-            //         }
-            //     });
-
-
 
             poll.save(function (err, updatedPoll) {
                 if (err) { console.log(err); }
@@ -147,7 +141,7 @@ function PollController() {
              if (err) { throw err; }
 
              // add poll to current user's polls
-             Users.findOne({ 'github.id': req.user.github.id }, function (err, user) {
+             Users.findOne({ 'twitter.id': req.user.twitter.id }, function (err, user) {
                  if (err) { throw err; }
 
                  user.pollIds.push(poll._id);
@@ -157,14 +151,12 @@ function PollController() {
                  });
              });
 
-
-            // res.json(poll);
-            // res.render('pages/poll', {
-            //     poll,
-            //     isAuthenticated: req.isAuthenticated(),
-            //     currPage: 'poll'
-            // });
-            res.redirect(`/poll/${poll._id}`);
+            res.render('pages/poll', {
+                isMyPoll: true,
+                poll,
+                isAuthenticated: req.isAuthenticated(),
+                currPage: 'poll'
+            });
 
          });
     }

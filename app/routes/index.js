@@ -33,28 +33,14 @@ module.exports = function (app, passport) {
 
 	var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-	// app.route('/')
-	// 	.get(function (req, res) {
-	// 		res.sendFile(path + '/public/views/index.html');
-	// 	});
 	app.route('/')
 		.get(pollController.showPolls);
 
 	app.route('/poll/create')
 		.get(isLoggedIn, pollController.newPollForm);
 
-	// app.route('/user')
-	// 	.get(isLoggedIn, function (req, res) {
-	// 		res.sendFile(path + '/public/views/loggedIn.html');
-	// 	});
 	app.route('/user/polls')
 		.get(isLoggedIn, pollController.getUserPollIds);
-
-
-	// app.route('/login')
-	// 	.get(function (req, res) {
-	// 		res.sendFile(path + '/public/login.html');
-	// 	});
 
 	app.route('/logout')
 		.get(function (req, res) {
@@ -62,17 +48,8 @@ module.exports = function (app, passport) {
 			res.redirect('/');
 		});
 
-	// app.route('/api/polls')
-	// 	.get(pollController.getPolls);
-
-
 	app.route('/poll/:pollId')
 		.get(pollController.showPoll);
-
-	// app.route('/api/:id')
-	// 	.get(isLoggedIn, function (req, res) {
-	// 		res.json(req.user.github);
-	// 	});
 
 	app.route('/auth/github')
 		.get(passport.authenticate('github'));
@@ -83,8 +60,10 @@ module.exports = function (app, passport) {
 			failureRedirect: '/'
 		}));
 
-	// app.route('/api/:id/polls')
-	// 	.get(isLoggedIn, pollController.getUserPolls);
+	app.get('/auth/twitter', passport.authenticate('twitter'));
+	app.get('/auth/twitter/callback',
+	passport.authenticate('twitter', { successRedirect: '/',
+									   failureRedirect: '/login' }));
 
 	app.route('/api/:pollId/vote')
 		.post(urlencodedParser, pollController.updatePoll);
@@ -95,7 +74,7 @@ module.exports = function (app, passport) {
 	app.route('/api/pollName/:pollId')
 		.get(isLoggedIn, pollController.getPollName);
 
-	// app.route('/api/mypolls')
-	// 	.get(isLoggedIn, pollController.getUserPolls);
+	app.route('/api/poll/:pollId')
+		.delete(isLoggedIn, pollController.deletePoll);
 
 };
