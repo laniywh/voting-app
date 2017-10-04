@@ -30,6 +30,9 @@
                 <% if(isMyPoll) { %>
                     <input class="btn" value="Delete Poll" id="delete-btn">
                 <% } %>
+                <% if(isAuthenticated) { %>
+                    <a href="https://twitter.com/share?ref_src=twsrc%5Etfw&text=Voting app: <%= poll.name %>" class="twitter-share-button btn" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                <% } %>
               </form>
             </div>
 
