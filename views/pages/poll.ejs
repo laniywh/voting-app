@@ -27,9 +27,6 @@
                   <% } %>
                 </div>
                 <input class="btn" type="submit" value="Submit" id="submit-btn">
-                <% if(isMyPoll) { %>
-                    <input class="btn" value="Delete Poll" id="delete-btn">
-                <% } %>
                 <% if(isAuthenticated) { %>
                     <a href="https://twitter.com/share?ref_src=twsrc%5Etfw&text=Voting app: <%= poll.name %>" class="twitter-share-button btn" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
                 <% } %>
@@ -54,7 +51,6 @@
     <script type="text/javascript">
       var pollForm = document.querySelector('#pollForm');
       var submitBtn = document.querySelector('#submit-btn');
-      var deleteBtn = document.querySelector('#delete-btn');
       var pollDetails = document.querySelector('.poll-details');
       var graphContainer = document.querySelector('.graph');
       var pollId = pollDetails.dataset.pollId;
@@ -64,21 +60,6 @@
       drawGraph(pollOptions);
 
       onFormSubmit();
-
-      // TODO: may be i should check if is my poll here to get more time
-      if(isMyPoll) { onDelete(); }
-
-      function onDelete() {
-          deleteBtn.addEventListener('click', function(ev) {
-              const apiDeletePoll = appUrl + `/api/poll/${pollId}`;
-              console.log(apiDeletePoll);
-
-              ajaxFunctions.ajaxRequest('DELETE', apiDeletePoll, function () {
-                  console.log('done deleting poll');
-                  window.location="/user/polls";
-              });
-          });
-      };
 
       function onFormSubmit() {
           submitBtn.addEventListener('click', function (ev) {

@@ -22,8 +22,9 @@
 
           <ul class="list-group polls-container">
             <% for(var i = 0; i < pollIds.length; i++) { %>
-              <li class="list-group-item poll">
+              <li class="list-group-item poll" id='poll-<%= pollIds[i] %>'>
                 <a href='/poll/<%= pollIds[i] %>' id='id-<%= pollIds[i] %>'></a>
+                <input class="btn delete-btn" value="Delete Poll" data-id='<%= pollIds[i] %>'>
               </li>
             <% } %>
           </ul>
@@ -40,7 +41,10 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
   <script type="text/javascript" src="/common/ajax-functions.js"></script>
   <script>
+    const deleteBtns = document.querySelectorAll('.delete-btn');
     const pollIds = <%- JSON.stringify(pollIds) %>;
+    const pollsContainer = document.querySelector('.polls-container');
+
     for(var i = 0; i < pollIds.length; i++) {
       const pollLink = document.querySelector(`#id-${pollIds[i]}`);
 
@@ -51,6 +55,31 @@
         pollLink.text = parsedData.pollName;
       });
     }
+
+    onDelete();
+
+    function onDelete() {
+
+      for(var i = 0; i < deleteBtns.length; i++) {
+        deleteBtns[i].addEventListener('click', function(ev) {
+          console.log(this);
+            const id = this.dataset.id;
+
+            // hide deleted poll
+            pollsContainer.removeChild(document.querySelector(`#poll-${id}`));
+
+
+            // delete poll on server
+            const apiDeletePoll = appUrl + `/api/poll/${id}`;
+
+            ajaxFunctions.ajaxRequest('DELETE', apiDeletePoll, function () {
+                console.log('done deleting poll');
+            });
+        });
+
+      }
+      
+    };
   </script>
 </body>
 </html>
