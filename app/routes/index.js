@@ -68,4 +68,7 @@ module.exports = function (app, passport) {
 	app.route('/api/poll/:pollId')
 		.delete(isLoggedIn, pollController.deletePoll);
 
+	app.route('/api/poll/:pollId/addoption')
+		.get(isLoggedIn, pollController.addOption);
+
 };

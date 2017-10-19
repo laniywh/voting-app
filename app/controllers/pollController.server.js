@@ -82,6 +82,25 @@ function PollController() {
         })
     }
 
+    this.addOption = function (req, res) {
+        var pollId = req.params.pollId;
+
+        Polls.findById(pollId, function (err, poll) {
+            if (err) { throw err; }
+
+            poll.options.push({
+                name: req.query.o,
+                votes: 0
+            });
+
+            poll.save(function (err, updatedpoll) {
+                if (err) { console.log(err); }
+                res.sendStatus(200);
+            });
+            
+        });
+    };
+
     this.updatePoll = function (req, res) {
         var pollId = req.params.pollId;
         var selectedOption = req.body.selectedOption;

@@ -71,6 +71,7 @@
         var pollId = pollDetails.dataset.pollId;
         var pollOptions = <%- JSON.stringify(poll.options) %>;
         var isMyPoll = <%- JSON.stringify(isMyPoll) %>
+        var isAuthenticated = <%- JSON.stringify(isAuthenticated) %>;
         var optionInput = document.querySelector('.option-input');
         var addBtn = document.querySelector('.btn-add');
         var pollOptionsContainer = document.querySelector('.poll-options');
@@ -80,7 +81,9 @@
 
         onFormSubmit();
 
-        onAddOption();
+        if (isAuthenticated) {
+            onAddOption();
+        }
 
         function onAddOption() {
             addBtn.addEventListener('click', function (ev) {
@@ -106,11 +109,22 @@
                 return;
             }
 
+            // add option on client side
             pollOptionsContainer.insertAdjacentHTML('beforeend', `
                 <input type="radio" name="option" value="${option}">
                 ${option}
                 <br>
             `);
+
+            // add option on server side
+            var apiAddOption = appUrl + `/api/poll/${pollId}/addoption?o=${option}`;
+            ajaxFunctions.ajaxRequest('GET', apiAddOption, function () {
+                pollOptions.push({
+                    name: option,
+                    votes: 0
+                });
+            });
+
         }
 
         function hasOption(option) {
