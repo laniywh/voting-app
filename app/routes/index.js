@@ -51,15 +51,6 @@ module.exports = function (app, passport) {
 	app.route('/poll/:pollId')
 		.get(pollController.showPoll);
 
-	app.route('/auth/github')
-		.get(passport.authenticate('github'));
-
-	app.route('/auth/github/callback')
-		.get(passport.authenticate('github', {
-			successRedirect: '/',
-			failureRedirect: '/'
-		}));
-
 	app.get('/auth/twitter', passport.authenticate('twitter'));
 	app.get('/auth/twitter/callback',
 	passport.authenticate('twitter', { successRedirect: '/',

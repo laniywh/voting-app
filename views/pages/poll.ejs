@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <% include ../partials/head %>
+    <% include ../partials/head %>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -11,32 +13,44 @@
 
         <section class="poll-details" data-poll-id="<%= poll._id %>">
 
-          <h2 id="poll-name"><%= poll.name %></h2>
+            <h2 id="poll-name">
+                <%= poll.name %>
+            </h2>
 
-          <div class="row">
+            <div class="row">
 
-            <div class="col-md-6 options">
-              <form action="" method="POST" id="pollForm">
-                <div class="poll-options">
-                  <% for(var i = 0; i < poll.options.length; i++) { %>
-                    <input type="radio"
-                           name="option"
-                           value="<%= poll.options[i].name %>"
-                           <%= i==0 ? 'checked' : '' %>>
-                           <%= poll.options[i].name %><br>
-                  <% } %>
+                <div class="col-md-6 options">
+                    <form action="" method="POST" id="pollForm">
+                        <div class="poll-options">
+                            <% for(var i = 0; i < poll.options.length; i++) { %>
+                                <input type="radio" name="option" value="<%= poll.options[i].name %>" <%=i==0 ? 'checked' : '' %>>
+                                <%= poll.options[i].name %>
+                                    <br>
+                                    <% } %>
+                        </div>
+                        <input class="btn" type="submit" value="Submit" id="submit-btn">
+                        <% if(isAuthenticated) { %>
+                            <a href="https://twitter.com/share?ref_src=twsrc%5Etfw&text=Voting app: <%= poll.name %>" class="twitter-share-button btn"
+                                data-show-count="false">Tweet</a>
+                            <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                            <% } %>
+                    </form>
+
+                    <% if(isAuthenticated) { %>
+                        <div class="input-group">
+                            <input type="text" class="form-control option-input" placeholder="Add an option..." aria-label="Add an option...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary btn-add" type="submit">Add</button>
+                            </span>
+                        </div>
+                        <div class="alert alert-danger alert-hasOption" role="alert" style="display:none;">Option already exists!</div>
+                        <% } %>
                 </div>
-                <input class="btn" type="submit" value="Submit" id="submit-btn">
-                <% if(isAuthenticated) { %>
-                    <a href="https://twitter.com/share?ref_src=twsrc%5Etfw&text=Voting app: <%= poll.name %>" class="twitter-share-button btn" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-                <% } %>
-              </form>
-            </div>
 
-            <div class="col-md-6">
-              <div class="graph"></div>
+                <div class="col-md-6">
+                    <div class="graph"></div>
+                </div>
             </div>
-          </div>
 
         </section>
 
@@ -44,134 +58,181 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+        crossorigin="anonymous"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script type="text/javascript" src="/common/ajax-functions.js"></script>
 
     <script type="text/javascript">
-      var pollForm = document.querySelector('#pollForm');
-      var submitBtn = document.querySelector('#submit-btn');
-      var pollDetails = document.querySelector('.poll-details');
-      var graphContainer = document.querySelector('.graph');
-      var pollId = pollDetails.dataset.pollId;
-      var pollOptions = <%- JSON.stringify(poll.options) %>;
-      var isMyPoll = <%- JSON.stringify(isMyPoll) %>
+        var pollForm = document.querySelector('#pollForm');
+        var submitBtn = document.querySelector('#submit-btn');
+        var pollDetails = document.querySelector('.poll-details');
+        var graphContainer = document.querySelector('.graph');
+        var pollId = pollDetails.dataset.pollId;
+        var pollOptions = <%- JSON.stringify(poll.options) %>;
+        var isMyPoll = <%- JSON.stringify(isMyPoll) %>
+        var optionInput = document.querySelector('.option-input');
+        var addBtn = document.querySelector('.btn-add');
+        var pollOptionsContainer = document.querySelector('.poll-options');
+        var hasOptionAlert = document.querySelector('.alert-hasOption');
 
-      drawGraph(pollOptions);
+        drawGraph(pollOptions);
 
-      onFormSubmit();
+        onFormSubmit();
 
-      function onFormSubmit() {
-          submitBtn.addEventListener('click', function (ev) {
-              ev.preventDefault();
-              console.log('form submit');
+        onAddOption();
 
-              var apiVote = appUrl + `/api/${pollId}/vote`;
+        function onAddOption() {
+            addBtn.addEventListener('click', function (ev) {
+                ev.preventDefault();
+                addOption();
+            });
+            optionInput.addEventListener('keydown', function (ev) {
+                hasOptionAlert.style.display = 'none';
+                if (ev.keyCode === 13) {
+                    addOption();
+                }
+            });
+        }
 
-              // get option selected
-              var formData = new FormData(pollForm);
-              var selectedOption = formData.get('option');
+        function addOption() {
+            var option = optionInput.value;
+            optionInput.value = '';
 
-              // create params for post request
-              var params = `selectedOption=${selectedOption}`;
-              console.log(params);
+            // error check
+            if (option === "") return;
+            if (hasOption(option)) {
+                hasOptionAlert.style.display = 'block';
+                return;
+            }
 
-              // update graph
-              ajaxFunctions.ajaxRequest('POST', apiVote, function (data) {
-                  var data = JSON.parse(data);
-                  console.log(data);
+            pollOptionsContainer.insertAdjacentHTML('beforeend', `
+                <input type="radio" name="option" value="${option}">
+                ${option}
+                <br>
+            `);
+        }
 
-                  // if (data.isLoggedIn) {
-                      var poll = data.updatedPoll;
+        function hasOption(option) {
+            var result = pollOptions.find(function (element) {
+                return element.name == option;
+            });
 
-                      // update graph
-                      graphContainer.innerHTML = '';
-                      drawGraph(poll.options);
+            return result ? true : false;
+        }
 
-                  // } else {
-                  //     alert('Login in to vote!');
-                  // }
-              }, params);
+        function onFormSubmit() {
+            submitBtn.addEventListener('click', function (ev) {
+                ev.preventDefault();
+                console.log('form submit');
 
+                var apiVote = appUrl + `/api/${pollId}/vote`;
 
-          });
-      }
+                // get option selected
+                var formData = new FormData(pollForm);
+                var selectedOption = formData.get('option');
 
-      function drawGraph(dataset) {
+                // create params for post request
+                var params = `selectedOption=${selectedOption}`;
+                console.log(params);
 
-        var width = 360;
-        var height = 360;
-        var radius = Math.min(width, height) / 2;
-        var donutWidth = 75;                            // NEW
+                // update graph
+                ajaxFunctions.ajaxRequest('POST', apiVote, function (data) {
+                    var data = JSON.parse(data);
+                    console.log(data);
 
-        var color = d3.scaleOrdinal(d3.schemeCategory20b);
+                    // if (data.isLoggedIn) {
+                    var poll = data.updatedPoll;
 
-        var svg = d3.select('.graph')
-          .append('svg')
-          .attr('width', width)
-          .attr('height', height)
-          .append('g')
-          .attr('transform', 'translate(' + (width / 2) +
-            ',' + (height / 2) + ')');
+                    // update graph
+                    graphContainer.innerHTML = '';
+                    drawGraph(poll.options);
 
-        var arc = d3.arc()
-          .innerRadius(radius - donutWidth)
-          .outerRadius(radius);
-
-        var pie = d3.pie()
-          .value(function(d) { return d.votes; })
-          .sort(null);
-
-        var path = svg.selectAll('path')
-          .data(pie(dataset))
-          .enter()
-          .append('path')
-          .attr('d', arc)
-          .attr('fill', function(d, i) {
-            return color(d.data.name);
-          });
+                    // } else {
+                    //     alert('Login in to vote!');
+                    // }
+                }, params);
 
 
-        // tooltip
+            });
+        }
 
-        var tooltip = d3.select('.graph')
-            .append('div')
-            .attr('class', 'tooltip');
+        function drawGraph(dataset) {
 
-        tooltip.append('div')
-            .attr('class', 'label');
+            var width = 360;
+            var height = 360;
+            var radius = Math.min(width, height) / 2;
+            var donutWidth = 75;                            // NEW
 
-        tooltip.append('div')
-            .attr('class', 'count');
+            var color = d3.scaleOrdinal(d3.schemeCategory20b);
 
-        tooltip.append('div')
-            .attr('class', 'percent');
+            var svg = d3.select('.graph')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', 'translate(' + (width / 2) +
+                ',' + (height / 2) + ')');
 
-        path.on('mouseover', function(d) {
-            var total = d3.sum(dataset.map(function (d) {
-                return d.votes;
-            }));
+            var arc = d3.arc()
+                .innerRadius(radius - donutWidth)
+                .outerRadius(radius);
 
-            var percent = Math.round(1000 * d.data.votes / total) / 10;
-            tooltip.select('.label').html(d.data.name);
-            tooltip.select('.count').html(d.data.votes);
-            tooltip.select('.percent').html(percent + '%');
-            tooltip.style('opacity', 1);
+            var pie = d3.pie()
+                .value(function (d) { return d.votes; })
+                .sort(null);
 
-        });
+            var path = svg.selectAll('path')
+                .data(pie(dataset))
+                .enter()
+                .append('path')
+                .attr('d', arc)
+                .attr('fill', function (d, i) {
+                    return color(d.data.name);
+                });
 
-        path.on('mouseout', function () {
-            tooltip.style('opacity', 0);
-        });
 
-        // label follows mouse
-        path.on('mousemove', function () {
-            tooltip.style('top', (d3.event.layerY + 10) + 'px')
-                .style('left', (d3.event.layerX + 10) + 'px');
-        });
+            // tooltip
 
-      }
+            var tooltip = d3.select('.graph')
+                .append('div')
+                .attr('class', 'tooltip');
+
+            tooltip.append('div')
+                .attr('class', 'label');
+
+            tooltip.append('div')
+                .attr('class', 'count');
+
+            tooltip.append('div')
+                .attr('class', 'percent');
+
+            path.on('mouseover', function (d) {
+                var total = d3.sum(dataset.map(function (d) {
+                    return d.votes;
+                }));
+
+                var percent = Math.round(1000 * d.data.votes / total) / 10;
+                tooltip.select('.label').html(d.data.name);
+                tooltip.select('.count').html(d.data.votes);
+                tooltip.select('.percent').html(percent + '%');
+                tooltip.style('opacity', 1);
+
+            });
+
+            path.on('mouseout', function () {
+                tooltip.style('opacity', 0);
+            });
+
+            // label follows mouse
+            path.on('mousemove', function () {
+                tooltip.style('top', (d3.event.layerY + 10) + 'px')
+                    .style('left', (d3.event.layerX + 10) + 'px');
+            });
+
+        }
 
     </script>
 </body>
+
 </html>
