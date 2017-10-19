@@ -138,7 +138,11 @@
         function onFormSubmit() {
             submitBtn.addEventListener('click', function (ev) {
                 ev.preventDefault();
-                console.log('form submit');
+
+                if (!isAuthenticated) {
+                    alert('Login to vote!');
+                    return;
+                }
 
                 var apiVote = appUrl + `/api/${pollId}/vote`;
 
