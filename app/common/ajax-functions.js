@@ -1,22 +1,22 @@
-'use strict';
+"use strict";
 
 var appUrl = window.location.origin;
 var ajaxFunctions = {
-   ready: function ready (fn) {
-      if (typeof fn !== 'function') {
+   ready: function ready(fn) {
+      if (typeof fn !== "function") {
          return;
       }
 
-      if (document.readyState === 'complete') {
+      if (document.readyState === "complete") {
          return fn();
       }
 
-      document.addEventListener('DOMContentLoaded', fn, false);
+      document.addEventListener("DOMContentLoaded", fn, false);
    },
-   ajaxRequest: function ajaxRequest (method, url, callback, params = null) {
+   ajaxRequest: function ajaxRequest(method, url, callback, params = null) {
       var xmlhttp = new XMLHttpRequest();
 
-      xmlhttp.onreadystatechange = function () {
+      xmlhttp.onreadystatechange = function() {
          if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
             callback(xmlhttp.response);
          }
@@ -26,7 +26,10 @@ var ajaxFunctions = {
 
       // set header for post
       if (params) {
-         xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+         xmlhttp.setRequestHeader(
+            "Content-type",
+            "application/x-www-form-urlencoded"
+         );
       }
 
       if (params) {

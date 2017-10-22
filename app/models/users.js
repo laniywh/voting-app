@@ -1,14 +1,14 @@
-'use strict';
+"use strict";
 
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var User = new Schema({
-    twitter: {
-        id: String,
-        displayName: String
-    },
-   pollIds: [String] // should only consist of ID's
+	twitter: {
+		id: String,
+		displayName: String
+	},
+	pollIds: [String] // should only consist of ID's
 });
 
-module.exports = mongoose.model('User', User);
+module.exports = mongoose.model("User", User);

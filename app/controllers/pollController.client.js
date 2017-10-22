@@ -1,67 +1,60 @@
-'use strict';
+"use strict";
 
-(function () {
+(function() {
+    var homePageContent = document.querySelector(".home-page-content");
+    var newPollFormContainer = document.querySelector(
+        ".new-poll-form-container"
+    );
+    var pollsContainer = document.querySelector(".polls-container");
+    var pollDetailsContainer = document.querySelector(".poll-details");
+    var pollForm = document.querySelector("#pollForm");
 
-    var homePageContent = document.querySelector('.home-page-content');
-    var newPollFormContainer = document.querySelector('.new-poll-form-container');
-    var pollsContainer= document.querySelector('.polls-container');
-    var pollDetailsContainer = document.querySelector('.poll-details');
-    var pollForm = document.querySelector('#pollForm');
-
-    var loginBtn = document.querySelector('.login-btn');
-    var submitBtn = document.querySelector('#submit-btn');
-    var graphContainer = document.querySelector('.graph');
-    var apiUrlPolls = appUrl + '/api/polls';
-    var apiUrlUpdatePoll = appUrl + '/api/pollId/vote';
-    var apiUrlMyPolls = appUrl + '/api/mypolls';
+    var loginBtn = document.querySelector(".login-btn");
+    var submitBtn = document.querySelector("#submit-btn");
+    var graphContainer = document.querySelector(".graph");
+    var apiUrlPolls = appUrl + "/api/polls";
+    var apiUrlUpdatePoll = appUrl + "/api/pollId/vote";
+    var apiUrlMyPolls = appUrl + "/api/mypolls";
     var currPollId;
     var polls;
     var myPolls;
 
-    var newPollBtn = document.querySelector('.new-poll-btn');
-    var myPollBtn = document.querySelector('.my-polls-btn');
+    var newPollBtn = document.querySelector(".new-poll-btn");
+    var myPollBtn = document.querySelector(".my-polls-btn");
 
     if (newPollBtn) {
-        newPollBtn.addEventListener('click', newPoll);
+        newPollBtn.addEventListener("click", newPoll);
     }
 
     if (myPollBtn) {
-        myPollBtn.addEventListener('click', showMyPolls);
+        myPollBtn.addEventListener("click", showMyPolls);
     }
 
     function showMyPolls() {
-        console.log('click mypolls');
+        console.log("click mypolls");
 
         if (myPolls) {
             // show polls
-            console.log('has mypolls');
-
-
+            console.log("has mypolls");
         } else {
-
-            console.log('fetching mypolls');
-
+            console.log("fetching mypolls");
 
             // request my polls from server
-            ajaxFunctions.ajaxRequest('GET', apiUrlMyPolls, function (myPolls) {
-
+            ajaxFunctions.ajaxRequest("GET", apiUrlMyPolls, function(myPolls) {
                 myPolls = JSON.parse(myPolls);
                 console.log(myPolls);
 
                 // render polls
-
-
             });
         }
-
     }
 
     function newPoll(data) {
-        console.log('show new poll form');
+        console.log("show new poll form");
 
-        homePageContent.style.display = 'none';
-        pollDetailsContainer.style.display = 'none';
-        newPollFormContainer.style.display = 'block';
+        homePageContent.style.display = "none";
+        pollDetailsContainer.style.display = "none";
+        newPollFormContainer.style.display = "block";
 
         newPollFormContainer.innerHTML = `
             <form method="post" action="/" id="new-poll-form">
@@ -77,43 +70,50 @@
             </form>
         `;
 
-        var submitPollBtn = document.querySelector('#submit-poll-btn');
+        var submitPollBtn = document.querySelector("#submit-poll-btn");
 
-        submitPollBtn.addEventListener('click', submitPoll);
+        submitPollBtn.addEventListener("click", submitPoll);
     }
 
     function submitPoll(ev) {
         ev.preventDefault();
 
-        var newPollForm = document.querySelector('#new-poll-form');
-        var title = document.querySelector('#title').value;
-        var options = document.querySelector('#options').value.split('\n').toString();
+        var newPollForm = document.querySelector("#new-poll-form");
+        var title = document.querySelector("#title").value;
+        var options = document
+            .querySelector("#options")
+            .value.split("\n")
+            .toString();
         var params = `title=${title}&options=${options}`;
 
-        ajaxFunctions.ajaxRequest('POST', appUrl + '/api/poll/create', function (poll) {
-            var poll = JSON.parse(poll);
+        ajaxFunctions.ajaxRequest(
+            "POST",
+            appUrl + "/api/poll/create",
+            function(poll) {
+                var poll = JSON.parse(poll);
 
-            // hide the form
-            newPollFormContainer.style.display = 'none';
+                // hide the form
+                newPollFormContainer.style.display = "none";
 
-            myPolls = myPolls || [];
-            console.log(poll);
-            polls.push(poll);
-            myPolls.push(poll);
-            currPollId = poll._id;
-            showPollDetails(currPollId);
-
-        }, params);
+                myPolls = myPolls || [];
+                console.log(poll);
+                polls.push(poll);
+                myPolls.push(poll);
+                currPollId = poll._id;
+                showPollDetails(currPollId);
+            },
+            params
+        );
     }
 
     function showPolls(pollsJson) {
-        console.log('add polls to page...');
+        console.log("add polls to page...");
 
-        polls= JSON.parse(pollsJson);
+        polls = JSON.parse(pollsJson);
         var html = "";
 
         if (polls.length > 0) {
-            polls.forEach(function (poll) {
+            polls.forEach(function(poll) {
                 var pollListElem = `
                     <li class="list-group-item poll"
                         data-id=${poll._id}>
@@ -131,46 +131,47 @@
     }
 
     function onPollClick() {
-        var pollElems = document.querySelectorAll('.poll');
+        var pollElems = document.querySelectorAll(".poll");
 
-        pollElems.forEach(function (pollElem) {
-            pollElem.addEventListener('click', function () {
+        pollElems.forEach(function(pollElem) {
+            pollElem.addEventListener("click", function() {
                 homePageContent.style.display = "none";
 
                 currPollId = this.dataset.id;
                 showPollDetails(currPollId);
-        })});
+            });
+        });
     }
 
     function showPollDetails(pollId) {
         clearPollDetails();
-        console.log('show poll:' + pollId);
+        console.log("show poll:" + pollId);
 
-        var pollNameContainer = document.querySelector('#poll-name');
-        var pollOptionsContainer = document.querySelector('.poll-options');
-        var pollForm = document.querySelector('#pollForm');
+        var pollNameContainer = document.querySelector("#poll-name");
+        var pollOptionsContainer = document.querySelector(".poll-options");
+        var pollForm = document.querySelector("#pollForm");
 
         // update form action with current poll id
-        var updatedAction = pollForm.action.replace('pollId', pollId);
+        var updatedAction = pollForm.action.replace("pollId", pollId);
         pollForm.action = updatedAction;
 
         pollDetailsContainer.style.display = "block";
 
         // find poll by id
-        var poll = polls.find(function (poll) {
+        var poll = polls.find(function(poll) {
             return poll._id === pollId;
         });
 
         pollNameContainer.innerHTML = poll.name;
 
         // list options
-        var optionsHtml = '';
+        var optionsHtml = "";
         for (var i = 0; i < poll.options.length; i++) {
             optionsHtml += `
                 <input type="radio"
                        name="option"
                        value="${poll.options[i].name}"
-                       ${i==0 ? 'checked' : ''}>
+                       ${i == 0 ? "checked" : ""}>
                        ${poll.options[i].name}<br>
             `;
         }
@@ -180,123 +181,129 @@
         drawGraph(poll.options);
 
         onFormSubmit();
-
     }
 
     function clearPollDetails() {
-        graphContainer.innerHTML = '';
+        graphContainer.innerHTML = "";
     }
 
     function onFormSubmit() {
-        submitBtn.addEventListener('click', function (ev) {
+        submitBtn.addEventListener("click", function(ev) {
             ev.preventDefault();
-            console.log('form submit');
+            console.log("form submit");
 
             var apiVote = appUrl + `/api/${currPollId}/vote`;
 
             // get option selected
             var formData = new FormData(pollForm);
-            var selectedOption = formData.get('option');
+            var selectedOption = formData.get("option");
 
             // create params for post request
             var params = `selectedOption=${selectedOption}`;
 
-            ajaxFunctions.ajaxRequest('POST', apiVote, function (data) {
-                var data = JSON.parse(data);
-                console.log(data);
+            ajaxFunctions.ajaxRequest(
+                "POST",
+                apiVote,
+                function(data) {
+                    var data = JSON.parse(data);
+                    console.log(data);
 
-                if (data.isLoggedIn) {
-                    var poll = data.updatedPoll;
+                    if (data.isLoggedIn) {
+                        var poll = data.updatedPoll;
 
-                    // update graph
-                    graphContainer.innerHTML = '';
-                    drawGraph(poll.options);
-
-                } else {
-                    alert('Login in to vote!');
-                }
-            }, params);
-
-
+                        // update graph
+                        graphContainer.innerHTML = "";
+                        drawGraph(poll.options);
+                    } else {
+                        alert("Login in to vote!");
+                    }
+                },
+                params
+            );
         });
     }
 
     function drawGraph(dataset) {
-
         var width = 360;
         var height = 360;
         var radius = Math.min(width, height) / 2;
-        var donutWidth = 75;                            // NEW
+        var donutWidth = 75; // NEW
 
         var color = d3.scaleOrdinal(d3.schemeCategory20b);
 
-        var svg = d3.select('.graph')
-          .append('svg')
-          .attr('width', width)
-          .attr('height', height)
-          .append('g')
-          .attr('transform', 'translate(' + (width / 2) +
-            ',' + (height / 2) + ')');
+        var svg = d3
+            .select(".graph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr(
+                "transform",
+                "translate(" + width / 2 + "," + height / 2 + ")"
+            );
 
-        var arc = d3.arc()
-          .innerRadius(radius - donutWidth)
-          .outerRadius(radius);
+        var arc = d3
+            .arc()
+            .innerRadius(radius - donutWidth)
+            .outerRadius(radius);
 
-        var pie = d3.pie()
-          .value(function(d) { return d.votes; })
-          .sort(null);
+        var pie = d3
+            .pie()
+            .value(function(d) {
+                return d.votes;
+            })
+            .sort(null);
 
-        var path = svg.selectAll('path')
-          .data(pie(dataset))
-          .enter()
-          .append('path')
-          .attr('d', arc)
-          .attr('fill', function(d, i) {
-            return color(d.data.name);
-          });
-
+        var path = svg
+            .selectAll("path")
+            .data(pie(dataset))
+            .enter()
+            .append("path")
+            .attr("d", arc)
+            .attr("fill", function(d, i) {
+                return color(d.data.name);
+            });
 
         // tooltip
 
-        var tooltip = d3.select('.graph')
-            .append('div')
-            .attr('class', 'tooltip');
+        var tooltip = d3
+            .select(".graph")
+            .append("div")
+            .attr("class", "tooltip");
 
-        tooltip.append('div')
-            .attr('class', 'label');
+        tooltip.append("div").attr("class", "label");
 
-        tooltip.append('div')
-            .attr('class', 'count');
+        tooltip.append("div").attr("class", "count");
 
-        tooltip.append('div')
-            .attr('class', 'percent');
+        tooltip.append("div").attr("class", "percent");
 
-        path.on('mouseover', function(d) {
-            var total = d3.sum(dataset.map(function (d) {
-                return d.votes;
-            }));
-
+        path.on("mouseover", function(d) {
+            var total = d3.sum(
+                dataset.map(function(d) {
+                    return d.votes;
+                })
+            );
 
             var percent = Math.round(1000 * d.data.votes / total) / 10;
-            tooltip.select('.label').html(d.data.name);
-            tooltip.select('.count').html(d.data.votes);
-            tooltip.select('.percent').html(percent + '%');
-            tooltip.style('opacity', 1);
-
+            tooltip.select(".label").html(d.data.name);
+            tooltip.select(".count").html(d.data.votes);
+            tooltip.select(".percent").html(percent + "%");
+            tooltip.style("opacity", 1);
         });
 
-        path.on('mouseout', function () {
-            tooltip.style('opacity', 0);
+        path.on("mouseout", function() {
+            tooltip.style("opacity", 0);
         });
 
         // label follows mouse
-        path.on('mousemove', function () {
-            tooltip.style('top', (d3.event.layerY + 10) + 'px')
-                .style('left', (d3.event.layerX + 10) + 'px');
+        path.on("mousemove", function() {
+            tooltip
+                .style("top", d3.event.layerY + 10 + "px")
+                .style("left", d3.event.layerX + 10 + "px");
         });
-
     }
 
-    ajaxFunctions.ready(ajaxFunctions.ajaxRequest('GET', apiUrlPolls, showPolls));
-
+    ajaxFunctions.ready(
+        ajaxFunctions.ajaxRequest("GET", apiUrlPolls, showPolls)
+    );
 })();
