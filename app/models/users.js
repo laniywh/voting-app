@@ -8,7 +8,8 @@ var User = new Schema({
 		id: String,
 		displayName: String
 	},
-	pollIds: [String] // should only consist of ID's
+	pollIds: [String], // should only consist of ID's
+	votedPolls: [String] //consist of voted polls' IDs
 });
 
 module.exports = mongoose.model("User", User);

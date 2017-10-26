@@ -136,12 +136,24 @@
         }
 
         function onFormSubmit() {
+
             submitBtn.addEventListener('click', function (ev) {
                 ev.preventDefault();
 
+                var votedPolls;
+
                 if (!isAuthenticated) {
-                    alert('Login to vote!');
-                    return;
+                    // check voted list in localstorage
+                    if (localStorage.votedPolls) {
+                        votedPolls = JSON.parse(localStorage.votedPolls);
+                        if (votedPolls.includes(pollId)) {
+                            alert('Already voted!');
+                            return;
+                        }
+                    } else {
+                        votedPolls = [];
+                    }
+
                 }
 
                 var apiVote = appUrl + `/api/${pollId}/vote`;
@@ -158,6 +170,16 @@
                 ajaxFunctions.ajaxRequest('POST', apiVote, function (data) {
                     var data = JSON.parse(data);
                     console.log(data);
+
+                    if (!data) {
+                        alert('Already voted!');
+                        return;
+                    }
+
+                    if (!isAuthenticated) { 
+                        votedPolls.push(pollId);
+                        localStorage.votedPolls = JSON.stringify(votedPolls);
+                    }
 
                     // if (data.isLoggedIn) {
                     var poll = data.updatedPoll;

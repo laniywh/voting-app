@@ -57,6 +57,8 @@ function PollController() {
         });
     };
 
+    this.addVotedPoll = function(req, res) {};
+
     this.getPollName = function(req, res) {
         const pollId = req.params.pollId;
 
@@ -121,34 +123,31 @@ function PollController() {
     };
 
     this.updatePoll = function(req, res) {
-        var pollId = req.params.pollId;
+        const pollId = req.params.pollId;
         var selectedOption = req.body.selectedOption;
 
-        Polls.findById(pollId, function(err, poll) {
-            if (err) {
-                throw err;
-            }
-
-            // increment vote for selected option
-            for (var i = 0; i < poll.options.length; i++) {
-                if (poll.options[i].name === selectedOption) {
-                    poll.options[i].votes++;
-                    break;
-                }
-            }
-
-            poll.save(function(err, updatedPoll) {
+        // update voted polls
+        if (req.isAuthenticated()) {
+            Users.findOne({ "twitter.id": req.user.twitter.id }, function(
+                err,
+                user
+            ) {
                 if (err) {
-                    console.log(err);
+                    throw err;
                 }
 
-                console.log(updatedPoll);
-                res.json({
-                    isLoggedIn: true,
-                    updatedPoll: updatedPoll
-                });
+                // return null if already voted
+                if (user.votedPolls.includes(pollId)) {
+                    return res.json(null);
+                } else {
+                    vote(pollId, selectedOption, res);
+                    user.votedPolls.push(pollId);
+                    user.save();
+                }
             });
-        });
+        } else {
+            vote(pollId, selectedOption, res);
+        }
     };
 
     this.newPollForm = function(req, res) {
@@ -209,4 +208,34 @@ function PollController() {
     };
 }
 
+function vote(pollId, selectedOption, res) {
+    console.log("submitting vote...");
+
+    // update poll
+
+    Polls.findById(pollId, function(err, poll) {
+        if (err) {
+            throw err;
+        }
+
+        // increment vote for selected option
+        for (var i = 0; i < poll.options.length; i++) {
+            if (poll.options[i].name === selectedOption) {
+                poll.options[i].votes++;
+                break;
+            }
+        }
+
+        poll.save(function(err, updatedPoll) {
+            if (err) {
+                console.log(err);
+            }
+
+            res.json({
+                isLoggedIn: true,
+                updatedPoll: updatedPoll
+            });
+        });
+    });
+}
 module.exports = PollController;
