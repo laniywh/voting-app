@@ -140,13 +140,13 @@ function PollController() {
                 if (user.votedPolls.includes(pollId)) {
                     return res.json(null);
                 } else {
-                    vote(pollId, selectedOption, res);
+                    vote(pollId, selectedOption, req, res);
                     user.votedPolls.push(pollId);
                     user.save();
                 }
             });
         } else {
-            vote(pollId, selectedOption, res);
+            vote(pollId, selectedOption, req, res);
         }
     };
 
@@ -208,7 +208,7 @@ function PollController() {
     };
 }
 
-function vote(pollId, selectedOption, res) {
+function vote(pollId, selectedOption, req, res) {
     console.log("submitting vote...");
 
     // update poll
@@ -232,7 +232,7 @@ function vote(pollId, selectedOption, res) {
             }
 
             res.json({
-                isLoggedIn: true,
+                // isLoggedIn: req.isAuthenticated(),
                 updatedPoll: updatedPoll
             });
         });

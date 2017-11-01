@@ -1,31 +1,33 @@
 /********* Fonts **********/
 
 @font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Roboto'), local('Roboto-Regular'), url('../fonts/Roboto-Regular.ttf') format('truetype');
+	font-family: "Roboto";
+	font-style: normal;
+	font-weight: 400;
+	src: local("Roboto"), local("Roboto-Regular"),
+		url("../fonts/Roboto-Regular.ttf") format("truetype");
 }
 
 @font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 500;
-  src: local('Roboto Medium'), local('Roboto-Medium'), url('../fonts/Roboto-Medium.ttf') format('truetype');
+	font-family: "Roboto";
+	font-style: normal;
+	font-weight: 500;
+	src: local("Roboto Medium"), local("Roboto-Medium"),
+		url("../fonts/Roboto-Medium.ttf") format("truetype");
 }
 
 /****** Main Styling ******/
 
 body {
-	font-family: 'Roboto', sans-serif;
+	font-family: "Roboto", sans-serif;
 	font-size: 16px;
 	margin: 0;
 	padding: 0;
+	background: #f8f9fa;
 }
 
 header {
-	color: #00BCD4;
-	height: 56px;
+	color: #00bcd4;
 	margin: 0 0 14px 0;
 	text-align: center;
 }
@@ -34,15 +36,15 @@ p {
 	margin: 8px 0 0 0;
 }
 
-.container p {
-	text-align: center;
-	padding: 0;
-}
-
 /****** Header Styling ******/
 
-header p {
-	margin: 16px 0 5px 0;
+.navbar {
+	padding: 20px 0;
+}
+
+@media (min-width: 992px) .navbar-expand-lg .navbar-nav .nav-link {
+	padding-right: 0;
+	padding-left: 1.7rem;
 }
 
 .menu {
@@ -57,18 +59,18 @@ header p {
 }
 
 .menu:hover {
-	color: #FFA000;
+	color: #ffa000;
 }
 
 .menu:active {
-	color: #FF630D;
+	color: #ff630d;
 }
 
 header a ~ p {
 	margin: 0;
 	padding: 0;
 	display: inline;
-	color: #ECEFF1;
+	color: #eceff1;
 }
 
 #display-name {
@@ -94,7 +96,7 @@ header a ~ p {
 
 .btn > img {
 	float: left;
-	margin-left: 10px
+	margin-left: 10px;
 }
 
 /****** Logo Div Styling ******/
@@ -104,25 +106,28 @@ img {
 	display: block;
 }
 
-.clementine-text { /* Styling for the Clementine.js text */
+.clementine-text {
+	/* Styling for the Clementine.js text */
 	padding: 0;
 	margin: -25px 0 0 0;
 	font-weight: 500;
 	font-size: 60px;
-	color: #FFA000;
+	color: #ffa000;
 }
 
 /****** Click Styling ******/
 
-.btn-container {	/* Styling for the div that contains the buttons */
+.btn-container {
+	/* Styling for the div that contains the buttons */
 	margin: -10px auto 0 auto;
 	text-align: center;
 }
 
-.btn {	/* Styling for buttons */
-	margin: 0 8px;
+.btn {
+	/* Styling for buttons */
+	margin: 0;
 	color: white;
-	background-color: #00BCD4;
+	background-color: #00bcd4;
 	display: inline-block;
 	border: 0;
 	font-size: 14px;
@@ -132,101 +137,75 @@ img {
 	font-weight: 500;
 }
 
-.btn:focus {	/* Remove outline when hovering over button */
+.btn:focus {
+	/* Remove outline when hovering over button */
 	outline: none;
 }
 
-.btn:active {	/* Scale the button down by 10% when clicking on button */
+.btn:active {
+	/* Scale the button down by 10% when clicking on button */
 	transform: scale(0.9, 0.9);
 	-webkit-transform: scale(0.9, 0.9);
 	-moz-transform: scale(0.9, 0.9);
 }
 
-.btn-delete {	/* Styling for delete button */
-	background-color: #ECEFF1;
-	color: #212121;
-}
-
-#click-nbr {
-	font-weight: 400;
-}
-
-/****** Profile Styling ******/
-
-.github-profile {
-	width: 350px;
-	height: 200px;
-	border-radius: 3px;
-	margin: 86px auto 0 auto;
-	background-color: #EEE;
-	text-align: center;
-	color: #000;
-}
-
-.github-profile p:first-child {
-	padding-top: 16px;
-}
-
-.github-profile p:nth-child(5) {
-	margin-bottom: 16px
-}
-
-.github-profile p {
-	margin: 0 0 0 16px;
-	text-align: left;
-}
-
-.profile-value {
-	font-weight: 400;
-}
-
-span {
-	font-weight: 500;
-}
-
-.github-profile > img {
-	padding-top: 16px;
-	margin-bottom: 16px;
-}
-
-.github-profile .menu:hover {
-	color: #FFA000;
-}
-
-.github-profile .menu:active {
-	color: #FF630D;
-}
-
-#menu-divide {
-	color: #FFFFFF;
-	display: inline;
-	margin: 0;
-}
-
-
 /********* My style ************/
 
-.poll {
-	cursor: pointer;
+.jumbotron {
+	background-color: #f8f9fa;
+}
+
+.polls-container {
+	max-width: 600px;
+	margin: 0 auto;
+}
+#new-poll-form {
+	max-width: 600px;
+	margin: 0 auto;
+}
+.delete-btn {
+	width: 20px;
+	height: 20px;
+}
+
+.delete-btn:hover polygon {
+	fill: red;
+}
+
+.poll-container {
+	padding-top: 40px;
+}
+
+.poll-options {
+	margin-bottom: 20px;
+}
+
+.twitter-share-button {
+	margin-left: 20px;
+}
+
+.add-option-container {
+	margin-top: 20px;
 }
 
 .graph {
 	height: 360px;
 	width: 360px;
 	position: relative;
+	padding-left: 20px;
 }
 
 .tooltip {
-  background: #eee;
-  box-shadow: 0 0 5px #999999;
-  color: #333;
-  opacity: 0;
-  font-size: 12px;
-  left: 130px;
-  padding: 10px;
-  position: absolute;
-  text-align: center;
-  top: 95px;
-  width: 80px;
-  z-index: 10;
+	background: #eee;
+	box-shadow: 0 0 5px #999999;
+	color: #333;
+	opacity: 0;
+	font-size: 12px;
+	left: 130px;
+	padding: 10px;
+	position: absolute;
+	text-align: center;
+	top: 95px;
+	width: 80px;
+	z-index: 10;
 }

@@ -5,64 +5,56 @@
 </head>
 <body>
   <div class="container">
-      <header>
-          <% include ../partials/header %>
-      </header>
 
+    <header>
+      <% include ../partials/header %>
+    </header>
 
-        <section class="home-page-content">
-
-          <div class="jumbotron jumbotron-fluid">
-            <div class="container">
-              <h1 class="display-3">Voting App</h1>
-              <p class="lead">Select a poll to see the results and vote, or sign-in to make a new poll.</p>
-            </div>
+    <ul class="list-group polls-container">
+      <% for(var i = 0; i < pollIds.length; i++) { %>
+      <!-- <li class="list-group-item poll" id='poll-<%= pollIds[i] %>'> -->
+        <a href='/poll/<%= pollIds[i] %>' class='list-group-item list-group-item-action' id='poll-<%= pollIds[i] %>'>
+          <div class="d-flex w-100 justify-content-between align-items-center">
+            <span id='poll-name-id-<%= pollIds[i] %>'></span>
+            
+            <!-- <input class="btn delete-btn" value="Delete Poll" data-id='<%= pollIds[i] %>'> -->
+            <svg class="delete-btn" data-id='<%= pollIds[i] %>' enable-background="new 0 0 100 100" id="Layer_1" version="1.1" viewBox="0 0 100 100" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><polygon fill="#010101" points="77.6,21.1 49.6,49.2 21.5,21.1 19.6,23 47.6,51.1 19.6,79.2 21.5,81.1 49.6,53 77.6,81.1 79.6,79.2   51.5,51.1 79.6,23 "/></svg>
           </div>
+        </a>
+
+        <!-- </li> -->
+        <% } %>
+      </ul>
 
 
-          <ul class="list-group polls-container">
-            <% for(var i = 0; i < pollIds.length; i++) { %>
-              <li class="list-group-item poll" id='poll-<%= pollIds[i] %>'>
-                <a href='/poll/<%= pollIds[i] %>' id='id-<%= pollIds[i] %>'></a>
-                <input class="btn delete-btn" value="Delete Poll" data-id='<%= pollIds[i] %>'>
-              </li>
-            <% } %>
-          </ul>
+    </div>
 
-        </section>
+    <% include ../partials/footer %>
+    <script type="text/javascript" src="/common/ajax-functions.js"></script>
+    <script>
+      const deleteBtns = document.querySelectorAll('.delete-btn');
+      const pollIds = <%- JSON.stringify(pollIds) %>;
+      const pollsContainer = document.querySelector('.polls-container');
 
-      <section class="my-polls-container" style="display: none;">
-          <ul class="list-group polls-container"></ul>
-      </section>
+      for(var i = 0; i < pollIds.length; i++) {
+        const pollName = document.querySelector(`#poll-name-id-${pollIds[i]}`);
 
-  </div>
+        const apiPollName = appUrl + `/api/pollName/${pollIds[i]}`;
+        ajaxFunctions.ajaxRequest('GET', apiPollName, function(data) {
+          const parsedData = JSON.parse(data);
+          pollName.innerText = parsedData.pollName;
+        });
+      }
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="/common/ajax-functions.js"></script>
-  <script>
-    const deleteBtns = document.querySelectorAll('.delete-btn');
-    const pollIds = <%- JSON.stringify(pollIds) %>;
-    const pollsContainer = document.querySelector('.polls-container');
+      onDelete();
 
-    for(var i = 0; i < pollIds.length; i++) {
-      const pollLink = document.querySelector(`#id-${pollIds[i]}`);
+      function onDelete() {
 
-      const apiPollName = appUrl + `/api/pollName/${pollIds[i]}`;
-      ajaxFunctions.ajaxRequest('GET', apiPollName, function(data) {
-        const parsedData = JSON.parse(data);
-
-        pollLink.text = parsedData.pollName;
-      });
-    }
-
-    onDelete();
-
-    function onDelete() {
-
-      for(var i = 0; i < deleteBtns.length; i++) {
-        deleteBtns[i].addEventListener('click', function(ev) {
-          console.log(this);
+        for(var i = 0; i < deleteBtns.length; i++) {
+          deleteBtns[i].addEventListener('click', function(ev) {
+            // ev.stopPropagation(); doesn't work
+            ev.preventDefault();
+            console.log(this);
             const id = this.dataset.id;
 
             // hide deleted poll
@@ -73,13 +65,32 @@
             const apiDeletePoll = appUrl + `/api/poll/${id}`;
 
             ajaxFunctions.ajaxRequest('DELETE', apiDeletePoll, function () {
-                console.log('done deleting poll');
+              console.log('done deleting poll');
             });
-        });
+          });
 
+        }
       }
-      
-    };
-  </script>
-</body>
-</html>
+
+        function deletePoll(ev) {
+          alert(`${ev}`);
+            ev.stopPropagation();
+            console.log('stopPropagation');
+            console.log(this);
+            const id = this.dataset.id;
+
+            // hide deleted poll
+            pollsContainer.removeChild(document.querySelector(`#poll-${id}`));
+
+
+            // delete poll on server
+            const apiDeletePoll = appUrl + `/api/poll/${id}`;
+
+            ajaxFunctions.ajaxRequest('DELETE', apiDeletePoll, function () {
+              console.log('done deleting poll');
+            });
+        }
+
+    </script>
+  </body>
+  </html>

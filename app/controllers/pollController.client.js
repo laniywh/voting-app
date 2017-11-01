@@ -6,7 +6,7 @@
         ".new-poll-form-container"
     );
     var pollsContainer = document.querySelector(".polls-container");
-    var pollDetailsContainer = document.querySelector(".poll-details");
+    var pollContainer = document.querySelector(".poll-container");
     var pollForm = document.querySelector("#pollForm");
 
     var loginBtn = document.querySelector(".login-btn");
@@ -53,7 +53,7 @@
         console.log("show new poll form");
 
         homePageContent.style.display = "none";
-        pollDetailsContainer.style.display = "none";
+        pollContainer.style.display = "none";
         newPollFormContainer.style.display = "block";
 
         newPollFormContainer.innerHTML = `
@@ -155,7 +155,7 @@
         var updatedAction = pollForm.action.replace("pollId", pollId);
         pollForm.action = updatedAction;
 
-        pollDetailsContainer.style.display = "block";
+        pollContainer.style.display = "block";
 
         // find poll by id
         var poll = polls.find(function(poll) {
