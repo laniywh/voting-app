@@ -10,8 +10,12 @@
         <a class="nav-link" href="/">Home</a>
       </li>
       <% if(isAuthenticated) { %>
-      <li class="nav-item <%= currPage == 'userPolls' ? 'active' : '' %>">
-        <a class="nav-link" href="/user/polls">My Polls</a>
+      <li class="nav-item <%= currPage == 'userPolls' ? 'active' : '' %> dropdown">
+        <a class="nav-link dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="/user/polls">User</a>
+        <ul class="list-group dropdown-menu">
+          <a href='/user/polls' class='dropdown-item'>My Polls</a>
+          <a href='/logout' class='dropdown-item'>Logout</a>
+        </ul>
       </li>
       <li class="nav-item new-poll-btn <%= currPage == 'newPoll' ? 'active' : '' %>">
         <a class="nav-link" href="/poll/create">New Poll</a>
