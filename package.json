@@ -1,7 +1,8 @@
 {
   "name": "clementinejs-fcc",
   "version": "1.0.1",
-  "description": "The elegant and lightweight boilerplate for full stack JavaScript.",
+  "description":
+    "The elegant and lightweight boilerplate for full stack JavaScript.",
   "main": "server.js",
   "repository": {
     "type": "git",
@@ -31,9 +32,6 @@
     "express-session": "^1.11.3",
     "mongoose": "^4.1.0",
     "passport": "^0.3.0",
-    "passport-github": "^1.0.0"
-  },
-  "devDependencies": {
     "passport-twitter": "^1.0.4"
   }
 }
