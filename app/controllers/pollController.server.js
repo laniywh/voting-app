@@ -28,6 +28,7 @@ function PollController() {
             if (err) {
                 throw err;
             }
+            console.log(polls);
             res.render("pages/index", {
                 polls,
                 isAuthenticated: req.isAuthenticated(),
