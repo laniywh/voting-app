@@ -11,7 +11,10 @@ Users can create polls and vote.
 - Node.js
 - MongoDB
 - Express
+- D3.js
 - EJS Templating Language
+- HTML
+- CSS
 - Heroku
 
 ## Running Locally
